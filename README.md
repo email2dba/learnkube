@@ -43,8 +43,8 @@ vagrant init centos/7
 
 vagrant up
 
-step 1:Login into Guest OS 
---------------------------
+step 1: Login into Guest OS 
+---------------------------
 vagrant global-status 
 
 vagrant ssh  default
@@ -64,7 +64,7 @@ sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig
 #reboot  master001
 init 6
 
-step 2 :setup networking using this Document:
+step 2: setup networking using this Document:
 --------------------------------------------
 network_virtualboxsetup001.pdf
 
@@ -257,7 +257,7 @@ kube-scheduler-master001            1/1     Running   0          65m    192.168.
 
 weave-net-vvwst                     2/2     Running   0          60m    192.168.5.11   master001   <none>           <none>
 
-step 10. Set IP address on Worker nodes
+step 10: Set IP address on Worker nodes
 ---------------------------------------
 #Shutdown master001. Because, we have cloned from master into worker001 and worker002
 
@@ -296,7 +296,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-eth1
 
 #change from 192.168.5.11 into 192.168.5.24
 
-step 11] start Docker on worker nodes 
+step 11: start Docker on worker nodes 
 -------------------------------------
 
 #since cloned from master001 before execute "kubectl init" on master001,
@@ -435,6 +435,7 @@ default via 10.0.2.2 dev eth0 proto dhcp metric 100
 [root@worker002 ~]# 
 
 #--------------------------------------------------------------------------------------
+
 #--------------------------------------------------------------------------------------
 
 commands for Reference 
