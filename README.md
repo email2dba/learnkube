@@ -244,7 +244,7 @@ step 11: start Docker on worker nodes
 
 step 12: Now Join worker nodes to master node 
 ----------------------------------------------
-- # To join worker nodes to Master node, a token is required. 
+- #To join worker nodes to Master node, a token is required. 
     Whenever kubernetes master initialized,  then in the output we get command and token.
     Copy that command and run on both nodes.
     In worker001 and worker002
