@@ -35,25 +35,25 @@ step 0: Create virutal centos box
 
 step 1: Login into Guest OS 
 ---------------------------
-- # Verify Vbox Status 
+- #Verify Vbox Status 
  
       vagrant global-status 
       vagrant ssh  default
 
-- # Change root password and keep it safe 
+- #Change root password and keep it safe 
  
       sudo su - 
       passwd root 
       hostnamectl set-hostname master001
       exec bash
-- # Turnoff selinux
+- #Turnoff selinux
  
       {
       setenforce 0
       sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
       }
 
-- # reboot  master001
+- #reboot  master001
 
       init 6
 
@@ -61,13 +61,13 @@ step 2: setup networking using this Document:
 --------------------------------------------
   network_virtualboxsetup001.pdf
 
-- # login into master001 and verify  networking is working
+- #login into master001 and verify  networking is working
 
       ping -c2 www.google.com
 
 step 3: setup firewall rules
 ----------------------------
-- # login as root user in master001 and run update  command to update all rpm 
+- #login as root user in master001 and run update  command to update all rpm 
 
       {
       yum update 
@@ -92,7 +92,7 @@ step 3: setup firewall rules
 
 step 4: Update /etc/hosts
 -------------------------
-- # login as root user in master001 
+- #login as root user in master001 
 
       vi /etc/hosts
       127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
@@ -104,7 +104,7 @@ step 4: Update /etc/hosts
 
 step 5: Configure Kubernetes Repository
 ---------------------------------------
-- # login as root user in master001 
+- #login as root user in master001 
    #Kubernetes packages are not available in the default CentOS 7 & RHEL 7 repositories,
    #Use below command to configure its package repositories.
 
@@ -121,27 +121,27 @@ step 5: Configure Kubernetes Repository
 
 step 6: Clone master001 as worker001 and worker002
 --------------------------------------------------
-- # shutdown  master001
+- #shutdown  master001
 
     init 0
 
-- # clone master001 as worker001 and worker002
+- #clone master001 as worker001 and worker002
 
 - Note: I have used VirtualBox GUI to clone and skipping these steps.
 
 Step 7: Install Kubeadm and Docker in master001
 -----------------------------------------------
-- # Bring the master001 UP using GUI or this command.
+- #Bring the master001 UP using GUI or this command.
 
       VBoxManage list vms
       VBoxManage startvm master001 --type headless
     
-- # Since we have  configured the package repositories, run the following
+- #Since we have  configured the package repositories, run the following
    command to install kubeadm and docker packages.
 
       yum install kubeadm docker -y
 
-- # Start and enable kubectl and docker service
+- #Start and enable kubectl and docker service
 
       systemctl restart docker  && systemctl enable docker
       systemctl restart kubelet && systemctl enable kubelet
@@ -149,20 +149,20 @@ Step 7: Install Kubeadm and Docker in master001
 step 8: Initialize Kubernetes Master with 'kubeadm init'
 --------------------------------------------------------
 
-- # Run the beneath command to initialize and setup kubernetes master.
+- #Run the beneath command to initialize and setup kubernetes master.
    I have used root user account for all and may not need to be root account to configure kubenets.
 
       kubeadm init --apiserver-advertise-address=192.168.5.11 --pod-network-cidr=10.96.0.0/12
 
-- # Following information you will receive and plese keep it safe.
+- #Following information you will receive and plese keep it safe.
   
       Then you can join any number of worker nodes by running the following on each as root:
       kubeadm join 192.168.5.11:6443 --token gmlu6z.virmyt5pe8nnf6fj --discovery-token-ca-cert-hash sha256:0f3059df758559b31077101969f8c77e40d9510ad8705e546aa8066700b0fd83 
 
-- # NOTE: this tocker is valid only for 24 hours you must finish all steps before 24 hours otherwise
+- #NOTE: this tocker is valid only for 24 hours you must finish all steps before 24 hours otherwise
     create new token in master001 server using "kubeadm token create ; kubeadm token list "
 
-- # I copied admin.conf to $HOME/.kube/config
+- #I copied admin.conf to $HOME/.kube/config
 
       cat /etc/kubernetes/admin.conf 
       mkdir -p $HOME/.kube
@@ -171,7 +171,7 @@ step 8: Initialize Kubernetes Master with 'kubeadm init'
 
 step 9: Deploy pod network to the cluster
 ------------------------------------------
-- # in master001 node 
+- #in master001 node 
 
       export kubever=$(kubectl version | base64 | tr -d '\n')
       kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=${kubever}\&env.IPALLOC_RANGE=10.96.0.0/12"  
@@ -183,7 +183,7 @@ step 9: Deploy pod network to the cluster
       rolebinding.rbac.authorization.k8s.io/weave-net created
       daemonset.apps/weave-net created
 
-- # verify the containers status
+- #verify the containers status
 
       kubectl get pods  -n kube-system
       NAME                      READY   STATUS    RESTARTS   AGE    IP             NODE       NOMINATED NODE READINESS GATES
@@ -198,33 +198,33 @@ step 9: Deploy pod network to the cluster
 
 step 10: Set IP address on Worker nodes
 ---------------------------------------
-- # Shutdown master001. Because, we have cloned from master into worker001 and worker002
+- #Shutdown master001. Because, we have cloned from master into worker001 and worker002
    currently having hostname master001 name and its ip addresses.
    in  master001 as root user
 
       init 0
-- # startup worker001 from local server
+- #startup worker001 from local server
 
       VBoxManage startvm worker001 --type headless
 
-- # change hostname to worker001 from master001
+- #change hostname to worker001 from master001
 
       hostnamectl set-hostname  worker001
 
-- # change  ip address to 192.168.5.22
+- #change  ip address to 192.168.5.22
 
       vi /etc/sysconfig/network-scripts/ifcfg-eth1 
       change from 192.168.5.11 into 192.168.5.22
 
-- # startup worker002 from local server
+- #startup worker002 from local server
 
       VBoxManage startvm worker002 --type headless
 
-- # change hostname to worker002  from master001
+- #change hostname to worker002  from master001
 
       hostnamectl set-hostname  worker002
 
-- # change  ip address to 192.168.5.24
+- #change  ip address to 192.168.5.24
 
       vi /etc/sysconfig/network-scripts/ifcfg-eth1 
       #change from 192.168.5.11 into 192.168.5.24
@@ -232,7 +232,7 @@ step 10: Set IP address on Worker nodes
 step 11: start Docker on worker nodes 
 -------------------------------------
 
-- # since cloned from master001 before execute "kubectl init" on master001,
+- #since cloned from master001 before execute "kubectl init" on master001,
     we no need to configure to open port again in firewalld ,
     kubernetes repositories  and kubeadm and docker installation
     in worker001 and worker002
@@ -254,7 +254,7 @@ step 12: Now Join worker nodes to master node
 step 13: Verify information in master001
 ---------------------------------------------
 
-- # in master001
+- #in master001
 
       ip route
       default via 10.0.2.2 dev eth0 proto dhcp metric 100 
@@ -299,7 +299,7 @@ step 13: Verify information in master001
 step 14: Verify information in worker nodes
 -------------------------------------------
 
-- # in worker001
+- #in worker001
 
       ip route
       default via 10.0.2.2 dev eth0 proto dhcp metric 100 
@@ -308,7 +308,7 @@ step 14: Verify information in worker nodes
       172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 
       192.168.5.0/24 dev eth1 proto kernel scope link src 192.168.5.22 metric 101 
 
-- # in worker002
+- #in worker002
 
       ip route
       default via 10.0.2.2 dev eth0 proto dhcp metric 100 
@@ -360,15 +360,15 @@ commands for Reference
     systemctl restart containerd kubelet kube-proxy
      ip route add 10.96.0.1/32 dev eth1
 
-- #  To cleanup installation use this 
+- #To cleanup installation use this 
 
       kubeadm reset
 
-- # Open kube-apiserver.yaml and update server address
+- #Open kube-apiserver.yaml and update server address
 
       cat /etc/kubernetes/manifests/kube-apiserver.yaml
 
-- # To list VMs
+- #To list VMs
 
       VBoxManage list vms
       #Power off VM
